@@ -1,80 +1,57 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Minus, Plus, ShoppingBag, Ruler } from "lucide-react";
 import { beadColors, sizes, type Collection } from "@/lib/data";
+import { useCart } from "@/lib/cart-context";
 import Button from "@/components/ui/Button";
 import Accordion from "@/components/ui/Accordion";
 
 const BASE_PRICE = 34;
 
 const sizeGuideRows = [
-  {
-    label: "XS",
-    in: "8\" – 11\"",
-    cm: "20 – 28 cm",
-    breeds: "Chihuahuas, Yorkies, Papillons, toy breeds, cats",
-  },
-  {
-    label: "S/M",
-    in: "11\" – 17\"",
-    cm: "28 – 43 cm",
-    breeds: "French Bulldogs, Pugs, Corgis, Border Collies, Cocker Spaniels",
-  },
-  {
-    label: "L/XL",
-    in: "17\" – 24\"",
-    cm: "43 – 60 cm",
-    breeds: "Labradors, Golden Retrievers, German Shepherds, Great Danes",
-  },
+  { label: "XS", in: "8\" – 11\"", cm: "20 – 28 cm", breeds: "Chihuahuas, Yorkies, Papillons, toy breeds, cats", maxIn: 11 },
+  { label: "S/M", in: "11\" – 17\"", cm: "28 – 43 cm", breeds: "French Bulldogs, Pugs, Corgis, Border Collies, Cocker Spaniels", maxIn: 17 },
+  { label: "L/XL", in: "17\" – 24\"", cm: "43 – 60 cm", breeds: "Labradors, Golden Retrievers, German Shepherds, Great Danes", maxIn: Infinity },
 ];
+
+function recommendSize(valueIn: number) {
+  return sizeGuideRows.find((row) => valueIn < row.maxIn)?.label ?? "L/XL";
+}
 
 function SizingGuide() {
   const [unit, setUnit] = useState<"in" | "cm">("in");
-
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <p>
-          XS uses 12mm beads and fits kittens and toy breeds. S/M and L/XL use 15mm beads for small through extra-large dogs.
-        </p>
-      </div>
-
+      <p>
+        XS uses 12mm beads and fits kittens and toy breeds. S/M and L/XL use 15mm beads for small through extra-large dogs.
+      </p>
       <div className="mt-3 inline-flex rounded-full border border-navy/15 p-0.5">
         <button
           onClick={() => setUnit("in")}
           aria-pressed={unit === "in"}
-          className={`rounded-full px-3 py-1 font-body text-xs font-semibold transition-colors ${
-            unit === "in" ? "bg-navy text-cream" : "text-navy"
-          }`}
+          className={`rounded-full px-3 py-1 font-body text-xs font-semibold transition-colors ${unit === "in" ? "bg-navy text-cream" : "text-navy"}`}
         >
           Inches
         </button>
         <button
           onClick={() => setUnit("cm")}
           aria-pressed={unit === "cm"}
-          className={`rounded-full px-3 py-1 font-body text-xs font-semibold transition-colors ${
-            unit === "cm" ? "bg-navy text-cream" : "text-navy"
-          }`}
+          className={`rounded-full px-3 py-1 font-body text-xs font-semibold transition-colors ${unit === "cm" ? "bg-navy text-cream" : "text-navy"}`}
         >
           Centimeters
         </button>
       </div>
-
       <div className="mt-4 overflow-hidden rounded-2xl border border-navy/10">
         {sizeGuideRows.map((row, i) => (
-          <div
-            key={row.label}
-            className={`flex flex-col gap-1 p-3 sm:flex-row sm:items-center sm:gap-4 ${i !== 0 ? "border-t border-navy/10" : ""}`}
-          >
+          <div key={row.label} className={`flex flex-col gap-1 p-3 sm:flex-row sm:items-center sm:gap-4 ${i !== 0 ? "border-t border-navy/10" : ""}`}>
             <span className="w-14 shrink-0 font-display text-sm font-semibold text-navy">{row.label}</span>
             <span className="w-32 shrink-0 font-body text-xs font-medium text-navy-dark/70">{unit === "in" ? row.in : row.cm}</span>
             <span className="font-body text-xs text-navy-dark/50">{row.breeds}</span>
           </div>
         ))}
       </div>
-
       <div className="mt-4 flex items-start gap-3 rounded-2xl bg-cream p-4">
         <Ruler size={20} className="mt-0.5 shrink-0 text-navy" />
         <div>
@@ -82,7 +59,7 @@ function SizingGuide() {
           <ol className="mt-2 list-decimal space-y-2 pl-4 text-navy-dark/70">
             <li>Wrap a soft measuring tape (or a piece of string, then measure the string against a ruler) around the base of your pet&apos;s neck, where a collar naturally sits.</li>
             <li>Keep the tape snug but not tight; you should be able to slip two fingers underneath it comfortably.</li>
-            <li>Note the measurement and match it to the table above.</li>
+            <li>Note the measurement and enter it below — we&apos;ll pick the right size automatically.</li>
             <li>If your pet is between two sizes, size up for comfort, especially for growing puppies or kittens.</li>
           </ol>
         </div>
@@ -92,13 +69,28 @@ function SizingGuide() {
 }
 
 export default function ProductConfigurator({ collection }: { collection: Collection }) {
+  const { addItem } = useCart();
   const [selectedColors, setSelectedColors] = useState<string[]>([beadColors[0].name]);
   const [size, setSize] = useState(sizes[1].label);
+  const [sizeAutoSet, setSizeAutoSet] = useState(false);
   const [petName, setPetName] = useState("");
+  const [neckSize, setNeckSize] = useState("");
+  const [neckUnit, setNeckUnit] = useState<"in" | "cm">("in");
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
   const total = useMemo(() => (BASE_PRICE * quantity).toFixed(2), [quantity]);
+
+  useEffect(() => {
+    const parsed = parseFloat(neckSize);
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      setSizeAutoSet(false);
+      return;
+    }
+    const valueIn = neckUnit === "cm" ? parsed / 2.54 : parsed;
+    setSize(recommendSize(valueIn));
+    setSizeAutoSet(true);
+  }, [neckSize, neckUnit]);
 
   const toggleColor = (name: string) => {
     setSelectedColors((prev) => {
@@ -110,6 +102,16 @@ export default function ProductConfigurator({ collection }: { collection: Collec
   };
 
   const handleAddToCart = () => {
+    addItem({
+      collectionName: collection.name,
+      collectionSlug: collection.slug,
+      colors: selectedColors,
+      size,
+      petName,
+      quantity,
+      price: BASE_PRICE,
+      image: collection.image,
+    });
     setAdded(true);
     window.setTimeout(() => setAdded(false), 2200);
   };
@@ -150,14 +152,22 @@ export default function ProductConfigurator({ collection }: { collection: Collec
       </div>
 
       <div className="mt-8">
-        <p className="font-body text-sm font-semibold text-navy">Size</p>
+        <div className="flex items-center justify-between">
+          <p className="font-body text-sm font-semibold text-navy">Size</p>
+          {sizeAutoSet && (
+            <span className="font-body text-xs font-medium text-navy/60">Auto-selected from neck size</span>
+          )}
+        </div>
         <div className="mt-3 grid grid-cols-3 gap-3">
           {sizes.map((s) => {
             const isSelected = size === s.label;
             return (
               <button
                 key={s.label}
-                onClick={() => setSize(s.label)}
+                onClick={() => {
+                  setSize(s.label);
+                  setSizeAutoSet(false);
+                }}
                 aria-pressed={isSelected}
                 className={`rounded-2xl border-2 px-4 py-3 text-left transition-colors duration-200 ${
                   isSelected ? "border-navy bg-navy text-cream" : "border-navy/15 text-navy hover:border-navy/40"
@@ -173,6 +183,43 @@ export default function ProductConfigurator({ collection }: { collection: Collec
         </div>
         <p className="mt-2 font-body text-xs text-navy-dark/50">
           {sizes.find((s) => s.label === size)?.detail}
+        </p>
+      </div>
+
+      <div className="mt-8">
+        <p className="font-body text-sm font-semibold text-navy">
+          Neck measurement <span className="font-normal text-navy-dark/50">(optional, for a precise fit)</span>
+        </p>
+        <div className="mt-3 flex items-center gap-3">
+          <input
+            type="number"
+            min="0"
+            step="0.1"
+            inputMode="decimal"
+            value={neckSize}
+            onChange={(e) => setNeckSize(e.target.value)}
+            placeholder={neckUnit === "in" ? "e.g. 13" : "e.g. 33"}
+            className="w-32 rounded-2xl border-2 border-navy/15 bg-white px-4 py-3 font-body text-navy placeholder:text-navy-dark/30 focus:border-navy"
+          />
+          <div className="inline-flex rounded-full border border-navy/15 p-0.5">
+            <button
+              onClick={() => setNeckUnit("in")}
+              aria-pressed={neckUnit === "in"}
+              className={`rounded-full px-3 py-1.5 font-body text-xs font-semibold transition-colors ${neckUnit === "in" ? "bg-navy text-cream" : "text-navy"}`}
+            >
+              in
+            </button>
+            <button
+              onClick={() => setNeckUnit("cm")}
+              aria-pressed={neckUnit === "cm"}
+              className={`rounded-full px-3 py-1.5 font-body text-xs font-semibold transition-colors ${neckUnit === "cm" ? "bg-navy text-cream" : "text-navy"}`}
+            >
+              cm
+            </button>
+          </div>
+        </div>
+        <p className="mt-2 font-body text-xs text-navy-dark/50">
+          Enter the exact neck size and we&apos;ll automatically select the right size above, and make your collar to fit perfectly.
         </p>
       </div>
 
@@ -213,7 +260,7 @@ export default function ProductConfigurator({ collection }: { collection: Collec
 
         <Button onClick={handleAddToCart} variant="primary" className="flex-1 sm:flex-none">
           <ShoppingBag size={18} />
-          {added ? "Added" : `Add to cart — $${total}`}
+          {added ? "Added to cart" : `Add to cart — $${total}`}
         </Button>
       </div>
 
@@ -223,7 +270,7 @@ export default function ProductConfigurator({ collection }: { collection: Collec
           animate={{ opacity: 1, y: 0 }}
           className="mt-3 font-body text-sm font-medium text-navy"
         >
-          {petName || "Your collar"} is in your cart.
+          {petName || "Your collar"} was added to your cart{neckSize ? ` — neck size ${neckSize}${neckUnit}` : ""}.
         </motion.p>
       )}
 

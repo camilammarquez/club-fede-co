@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Camera, Music, Mail } from "lucide-react";
 import BeadStrand from "./ui/BeadStrand";
 
@@ -8,7 +9,13 @@ export default function Footer() {
       <BeadStrand count={20} />
       <div className="container-fede grid grid-cols-2 gap-10 py-14 md:grid-cols-4">
         <div className="col-span-2 md:col-span-1">
-          <p className="font-display text-xl font-bold">Club Fede <span className="text-bead-coral">Co.</span></p>
+          <Image
+            src="/images/club-fede-wordmark.PNG"
+            alt="Club Fede Co."
+            width={220}
+            height={70}
+            className="h-40 w-auto brightness-0 invert"
+          />
           <p className="mt-3 max-w-[220px] font-body text-sm text-cream/70">Handmade pet accessories, personalized in Miami with love.</p>
           <div className="mt-5 flex gap-3">
             <a href="https://instagram.com" aria-label="Club Fede Co. on Instagram" className="rounded-full bg-white/10 p-2.5 hover:bg-white/20 transition-colors"><Camera size={18} /></a>

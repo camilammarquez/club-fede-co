@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCart } from "@/lib/cart-context";
 
 const navLinks = [
   { label: "Shop Collars", href: "/#collection" },
@@ -16,6 +17,7 @@ const navLinks = [
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { itemCount, openCart } = useCart();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -26,7 +28,7 @@ export default function Header() {
 
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? "bg-cream/90 backdrop-blur-md shadow-softer" : "bg-transparent"}`}>
-      <div className="container-fede flex items-center justify-between py-2">
+      <div className="container-fede flex items-center justify-between py-4">
         <Link href="/" className="flex items-center">
           <Image src="/images/club-fede-wordmark.PNG" alt="Club Fede Co." width={720} height={230} className="h-40 w-auto" priority />
         </Link>
@@ -40,11 +42,22 @@ export default function Header() {
         </nav>
 
         <div className="hidden md:flex items-center gap-4">
-          <button aria-label="View cart" className="relative rounded-full p-2.5 text-navy hover:bg-navy/5 transition-colors">
+          <button
+            onClick={openCart}
+            aria-label="View cart"
+            className="relative rounded-full p-2.5 text-navy hover:bg-navy/5 transition-colors"
+          >
             <ShoppingBag size={20} strokeWidth={2} />
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-bead-coral text-[10px] font-bold text-white">0</span>
+            {itemCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-bead-coral text-[10px] font-bold text-white">
+                {itemCount}
+              </span>
+            )}
           </button>
-          <Link href="/product/biscayne-blue" className="rounded-full bg-navy px-6 py-2.5 font-display text-sm font-semibold text-cream shadow-soft hover:bg-navy-dark hover:-translate-y-0.5 transition-all">
+          <Link
+            href="/product/biscayne-blue"
+            className="rounded-full bg-navy px-6 py-2.5 font-display text-sm font-semibold text-cream shadow-soft hover:bg-navy-dark hover:-translate-y-0.5 transition-all"
+          >
             Build Yours
           </Link>
         </div>
@@ -69,7 +82,20 @@ export default function Header() {
                   {link.label}
                 </Link>
               ))}
-              <Link href="/product/biscayne-blue" onClick={() => setOpen(false)} className="mt-4 rounded-full bg-navy px-6 py-3 text-center font-display text-sm font-semibold text-cream">
+              <button
+                onClick={() => {
+                  openCart();
+                  setOpen(false);
+                }}
+                className="mt-4 flex items-center justify-center gap-2 rounded-full border-2 border-navy px-6 py-3 font-display text-sm font-semibold text-navy"
+              >
+                <ShoppingBag size={16} /> View cart {itemCount > 0 ? `(${itemCount})` : ""}
+              </button>
+              <Link
+                href="/product/biscayne-blue"
+                onClick={() => setOpen(false)}
+                className="mt-2 rounded-full bg-navy px-6 py-3 text-center font-display text-sm font-semibold text-cream"
+              >
                 Build Yours
               </Link>
             </div>
