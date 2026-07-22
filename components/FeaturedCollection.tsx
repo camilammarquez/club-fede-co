@@ -49,7 +49,7 @@ export default function FeaturedCollection() {
         </motion.div>
 
         <p className="mt-14 font-body text-sm font-medium uppercase tracking-wide text-navy/50">Coming soon</p>
-        <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+        <div className="mt-5 flex flex-wrap justify-center gap-6">
           {comingSoon.map((c, i) => (
             <motion.div
               key={c.slug}
@@ -57,17 +57,17 @@ export default function FeaturedCollection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.4, delay: i * 0.06 }}
-              className="group relative overflow-hidden rounded-3xl"
+              className="group relative w-full max-w-[280px] overflow-hidden rounded-3xl transition-transform duration-300 hover:scale-105"
             >
               <div className="relative aspect-square">
                 <Image
                   src={c.image}
                   alt={`${c.name} preview, coming soon`}
                   fill
-                  sizes="200px"
-                  className="object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
+                  sizes="280px"
+                  className="object-cover"
                 />
-                <div className="absolute inset-0 bg-navy/30" />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy/50 via-transparent to-transparent" />
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-3">
                 <p className="font-display text-sm font-semibold text-white">{c.name}</p>
