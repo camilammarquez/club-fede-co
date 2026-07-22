@@ -1,13 +1,38 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { X, Minus, Plus, Trash2, ShoppingBag, Loader2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import Button from "@/components/ui/Button";
 
 export default function CartDrawer() {
   const { items, removeItem, updateQuantity, subtotal, isCartOpen, closeCart } = useCart();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleCheckout = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data.error || "Something went wrong. Please try again.");
+        setLoading(false);
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -102,8 +127,9 @@ export default function CartDrawer() {
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
                 <p className="mt-1 font-body text-xs text-navy-dark/50">Shipping and taxes calculated at checkout.</p>
-                <Button variant="primary" className="mt-4 w-full">
-                  Checkout
+                {error && <p className="mt-2 font-body text-xs font-medium text-bead-coral">{error}</p>}
+                <Button variant="primary" className="mt-4 w-full" onClick={handleCheckout} disabled={loading}>
+                  {loading ? <Loader2 size={18} className="animate-spin" /> : "Checkout"}
                 </Button>
               </div>
             )}

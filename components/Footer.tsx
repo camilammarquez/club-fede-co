@@ -14,7 +14,7 @@ export default function Footer() {
             alt="Club Fede Co."
             width={220}
             height={70}
-            className="h-40 w-auto brightness-0 invert"
+            className="h-24 w-auto brightness-0 invert"
           />
           <p className="mt-3 max-w-[220px] font-body text-sm text-cream/70">Handmade pet accessories, personalized in Miami with love.</p>
           <div className="mt-5 flex gap-3">
