@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { collections } from "@/lib/data";
+import CollarPreview from "@/components/CollarPreview";
 
 export default function FeaturedCollection() {
   const [live, ...comingSoon] = collections;
@@ -30,14 +31,8 @@ export default function FeaturedCollection() {
             href={`/product/${live.slug}`}
             className="group grid grid-cols-1 overflow-hidden rounded-5xl bg-white shadow-card md:grid-cols-2"
           >
-            <div className="relative aspect-[4/3] md:aspect-auto">
-              <Image
-                src={live.image}
-                alt={`${live.name} collar on a dog, Club Fede Co. current collection`}
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
+            <div className="relative aspect-[4/3] p-8 md:aspect-auto">
+              <CollarPreview colors={["Sky Blue", "Mint", "Coral"]} petName="YOUR PET" />
             </div>
             <div className="flex flex-col justify-center p-8 md:p-12">
               <span className={`inline-flex w-fit items-center rounded-full ${live.accent} px-4 py-1 font-body text-xs font-semibold text-navy`}>
@@ -46,7 +41,7 @@ export default function FeaturedCollection() {
               <h3 className="mt-4 font-display text-3xl font-bold text-navy">{live.name}</h3>
               <p className="mt-2 max-w-sm font-body text-navy-dark/70">{live.description}</p>
               <span className="mt-6 inline-flex items-center gap-1 font-display text-sm font-semibold text-navy">
-                Shop Biscayne Blue
+                Start customizing
                 <ArrowUpRight size={16} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </span>
             </div>

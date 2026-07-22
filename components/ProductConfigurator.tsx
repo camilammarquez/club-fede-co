@@ -7,6 +7,8 @@ import { beadColors, sizes, type Collection } from "@/lib/data";
 import { useCart } from "@/lib/cart-context";
 import Button from "@/components/ui/Button";
 import Accordion from "@/components/ui/Accordion";
+import CollarPreview from "@/components/CollarPreview";
+import ProductGalleryCarousel from "@/components/ProductGalleryCarousel";
 
 const sizePrices: Record<string, number> = {
   XS: 15,
@@ -72,7 +74,13 @@ function SizingGuide() {
   );
 }
 
-export default function ProductConfigurator({ collection }: { collection: Collection }) {
+export default function ProductConfigurator({
+  collection,
+  galleryImages,
+}: {
+  collection: Collection;
+  galleryImages: string[];
+}) {
   const { addItem } = useCart();
   const [selectedColors, setSelectedColors] = useState<string[]>([beadColors[0].name]);
   const [size, setSize] = useState(sizes[1].label);
@@ -124,172 +132,184 @@ export default function ProductConfigurator({ collection }: { collection: Collec
   };
 
   return (
-    <div>
-      <span className={`inline-flex w-fit items-center rounded-full ${collection.accent} px-4 py-1 font-body text-xs font-semibold text-navy`}>
-        {collection.status === "available" ? "Available now" : "Coming soon"}
-      </span>
-      <h1 className="mt-4 font-display text-3xl font-bold text-navy md:text-4xl">{collection.name} Collar</h1>
-      <p className="mt-2 font-body text-navy-dark/70">{collection.description}</p>
-      <p className="mt-5 font-display text-2xl font-semibold text-navy">${unitPrice.toFixed(2)}</p>
+    <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
+      <div>
+        <CollarPreview colors={selectedColors} petName={petName} />
+        <p className="mt-2 text-center font-body text-xs text-navy-dark/50">Live preview — updates as you customize</p>
 
-      <div className="mt-8">
-        <p className="font-body text-sm font-semibold text-navy">
-          Bead colors <span className="font-normal text-navy-dark/50">— choose up to 3</span>
-        </p>
-        <div className="mt-3 flex flex-wrap gap-3">
-          {beadColors.map((color) => {
-            const isSelected = selectedColors.includes(color.name);
-            return (
-              <button
-                key={color.name}
-                onClick={() => toggleColor(color.name)}
-                aria-pressed={isSelected}
-                aria-label={color.name}
-                title={color.name}
-                className={`relative h-11 w-11 rounded-full ${color.swatchClass} transition-transform duration-200 ${
-                  isSelected ? "ring-2 ring-navy ring-offset-2 ring-offset-cream scale-105" : "hover:scale-105"
-                }`}
-              />
-            );
-          })}
+        <div className="mt-6">
+          <p className="mb-3 font-body text-sm font-semibold text-navy">Real collars, real pets</p>
+          <ProductGalleryCarousel images={galleryImages} alt={`${collection.name} collar`} />
         </div>
-        <p className="mt-2 font-body text-xs text-navy-dark/50">
-          Selected: {selectedColors.join(", ")}
-        </p>
       </div>
 
-      <div className="mt-8">
-        <div className="flex items-center justify-between">
-          <p className="font-body text-sm font-semibold text-navy">Size</p>
-          {sizeAutoSet && (
-            <span className="font-body text-xs font-medium text-navy/60">Auto-selected from neck size</span>
-          )}
+      <div>
+        <span className={`inline-flex w-fit items-center rounded-full ${collection.accent} px-4 py-1 font-body text-xs font-semibold text-navy`}>
+          {collection.status === "available" ? "Available now" : "Coming soon"}
+        </span>
+        <h1 className="mt-4 font-display text-3xl font-bold text-navy md:text-4xl">{collection.name} Collar</h1>
+        <p className="mt-2 font-body text-navy-dark/70">{collection.description}</p>
+        <p className="mt-5 font-display text-2xl font-semibold text-navy">${unitPrice.toFixed(2)}</p>
+
+        <div className="mt-8">
+          <p className="font-body text-sm font-semibold text-navy">
+            Bead colors <span className="font-normal text-navy-dark/50">— choose up to 3</span>
+          </p>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {beadColors.map((color) => {
+              const isSelected = selectedColors.includes(color.name);
+              return (
+                <button
+                  key={color.name}
+                  onClick={() => toggleColor(color.name)}
+                  aria-pressed={isSelected}
+                  aria-label={color.name}
+                  title={color.name}
+                  className={`relative h-11 w-11 rounded-full ${color.swatchClass} transition-transform duration-200 ${
+                    isSelected ? "ring-2 ring-navy ring-offset-2 ring-offset-cream scale-105" : "hover:scale-105"
+                  }`}
+                />
+              );
+            })}
+          </div>
+          <p className="mt-2 font-body text-xs text-navy-dark/50">
+            Selected: {selectedColors.join(", ")}
+          </p>
         </div>
-        <div className="mt-3 grid grid-cols-3 gap-3">
-          {sizes.map((s) => {
-            const isSelected = size === s.label;
-            return (
+
+        <div className="mt-8">
+          <div className="flex items-center justify-between">
+            <p className="font-body text-sm font-semibold text-navy">Size</p>
+            {sizeAutoSet && (
+              <span className="font-body text-xs font-medium text-navy/60">Auto-selected from neck size</span>
+            )}
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-3">
+            {sizes.map((s) => {
+              const isSelected = size === s.label;
+              return (
+                <button
+                  key={s.label}
+                  onClick={() => {
+                    setSize(s.label);
+                    setSizeAutoSet(false);
+                  }}
+                  aria-pressed={isSelected}
+                  className={`rounded-2xl border-2 px-4 py-3 text-left transition-colors duration-200 ${
+                    isSelected ? "border-navy bg-navy text-cream" : "border-navy/15 text-navy hover:border-navy/40"
+                  }`}
+                >
+                  <span className="block font-display text-sm font-semibold">{s.label}</span>
+                  <span className={`block font-body text-[11px] ${isSelected ? "text-cream/70" : "text-navy-dark/50"}`}>
+                    ${sizePrices[s.label]?.toFixed(2)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 font-body text-xs text-navy-dark/50">
+            {sizes.find((s) => s.label === size)?.detail}
+          </p>
+        </div>
+
+        <div className="mt-8">
+          <p className="font-body text-sm font-semibold text-navy">
+            Neck measurement <span className="font-normal text-navy-dark/50">(optional, for a precise fit)</span>
+          </p>
+          <div className="mt-3 flex items-center gap-3">
+            <input
+              type="number"
+              min="0"
+              step="0.1"
+              inputMode="decimal"
+              value={neckSize}
+              onChange={(e) => setNeckSize(e.target.value)}
+              placeholder={neckUnit === "in" ? "e.g. 13" : "e.g. 33"}
+              className="w-32 rounded-2xl border-2 border-navy/15 bg-white px-4 py-3 font-body text-navy placeholder:text-navy-dark/30 focus:border-navy"
+            />
+            <div className="inline-flex rounded-full border border-navy/15 p-0.5">
               <button
-                key={s.label}
-                onClick={() => {
-                  setSize(s.label);
-                  setSizeAutoSet(false);
-                }}
-                aria-pressed={isSelected}
-                className={`rounded-2xl border-2 px-4 py-3 text-left transition-colors duration-200 ${
-                  isSelected ? "border-navy bg-navy text-cream" : "border-navy/15 text-navy hover:border-navy/40"
-                }`}
+                onClick={() => setNeckUnit("in")}
+                aria-pressed={neckUnit === "in"}
+                className={`rounded-full px-3 py-1.5 font-body text-xs font-semibold transition-colors ${neckUnit === "in" ? "bg-navy text-cream" : "text-navy"}`}
               >
-                <span className="block font-display text-sm font-semibold">{s.label}</span>
-                <span className={`block font-body text-[11px] ${isSelected ? "text-cream/70" : "text-navy-dark/50"}`}>
-                  ${sizePrices[s.label]?.toFixed(2)}
-                </span>
+                in
               </button>
-            );
-          })}
+              <button
+                onClick={() => setNeckUnit("cm")}
+                aria-pressed={neckUnit === "cm"}
+                className={`rounded-full px-3 py-1.5 font-body text-xs font-semibold transition-colors ${neckUnit === "cm" ? "bg-navy text-cream" : "text-navy"}`}
+              >
+                cm
+              </button>
+            </div>
+          </div>
+          <p className="mt-2 font-body text-xs text-navy-dark/50">
+            Enter the exact neck size and we&apos;ll automatically select the right size above, and make your collar to fit perfectly.
+          </p>
         </div>
-        <p className="mt-2 font-body text-xs text-navy-dark/50">
-          {sizes.find((s) => s.label === size)?.detail}
-        </p>
-      </div>
 
-      <div className="mt-8">
-        <p className="font-body text-sm font-semibold text-navy">
-          Neck measurement <span className="font-normal text-navy-dark/50">(optional, for a precise fit)</span>
-        </p>
-        <div className="mt-3 flex items-center gap-3">
+        <div className="mt-8">
+          <label htmlFor="pet-name" className="font-body text-sm font-semibold text-navy">
+            Pet&apos;s name
+          </label>
           <input
-            type="number"
-            min="0"
-            step="0.1"
-            inputMode="decimal"
-            value={neckSize}
-            onChange={(e) => setNeckSize(e.target.value)}
-            placeholder={neckUnit === "in" ? "e.g. 13" : "e.g. 33"}
-            className="w-32 rounded-2xl border-2 border-navy/15 bg-white px-4 py-3 font-body text-navy placeholder:text-navy-dark/30 focus:border-navy"
+            id="pet-name"
+            type="text"
+            maxLength={12}
+            value={petName}
+            onChange={(e) => setPetName(e.target.value)}
+            placeholder="e.g. Federico"
+            className="mt-3 w-full rounded-2xl border-2 border-navy/15 bg-white px-4 py-3 font-body text-navy placeholder:text-navy-dark/30 focus:border-navy"
           />
-          <div className="inline-flex rounded-full border border-navy/15 p-0.5">
+          <p className="mt-2 font-body text-xs text-navy-dark/50">Up to 12 letters, shown exactly as typed.</p>
+        </div>
+
+        <div className="mt-8 flex flex-wrap items-center gap-4">
+          <div className="flex items-center rounded-full border-2 border-navy/15">
             <button
-              onClick={() => setNeckUnit("in")}
-              aria-pressed={neckUnit === "in"}
-              className={`rounded-full px-3 py-1.5 font-body text-xs font-semibold transition-colors ${neckUnit === "in" ? "bg-navy text-cream" : "text-navy"}`}
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              aria-label="Decrease quantity"
+              className="p-3 text-navy hover:bg-navy/5 rounded-l-full"
             >
-              in
+              <Minus size={16} />
             </button>
+            <span className="w-8 text-center font-display text-sm font-semibold text-navy">{quantity}</span>
             <button
-              onClick={() => setNeckUnit("cm")}
-              aria-pressed={neckUnit === "cm"}
-              className={`rounded-full px-3 py-1.5 font-body text-xs font-semibold transition-colors ${neckUnit === "cm" ? "bg-navy text-cream" : "text-navy"}`}
+              onClick={() => setQuantity((q) => Math.min(10, q + 1))}
+              aria-label="Increase quantity"
+              className="p-3 text-navy hover:bg-navy/5 rounded-r-full"
             >
-              cm
+              <Plus size={16} />
             </button>
           </div>
-        </div>
-        <p className="mt-2 font-body text-xs text-navy-dark/50">
-          Enter the exact neck size and we&apos;ll automatically select the right size above, and make your collar to fit perfectly.
-        </p>
-      </div>
 
-      <div className="mt-8">
-        <label htmlFor="pet-name" className="font-body text-sm font-semibold text-navy">
-          Pet&apos;s name
-        </label>
-        <input
-          id="pet-name"
-          type="text"
-          maxLength={12}
-          value={petName}
-          onChange={(e) => setPetName(e.target.value)}
-          placeholder="e.g. Federico"
-          className="mt-3 w-full rounded-2xl border-2 border-navy/15 bg-white px-4 py-3 font-body text-navy placeholder:text-navy-dark/30 focus:border-navy"
-        />
-        <p className="mt-2 font-body text-xs text-navy-dark/50">Up to 12 letters, shown exactly as typed.</p>
-      </div>
-
-      <div className="mt-8 flex flex-wrap items-center gap-4">
-        <div className="flex items-center rounded-full border-2 border-navy/15">
-          <button
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            aria-label="Decrease quantity"
-            className="p-3 text-navy hover:bg-navy/5 rounded-l-full"
-          >
-            <Minus size={16} />
-          </button>
-          <span className="w-8 text-center font-display text-sm font-semibold text-navy">{quantity}</span>
-          <button
-            onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-            aria-label="Increase quantity"
-            className="p-3 text-navy hover:bg-navy/5 rounded-r-full"
-          >
-            <Plus size={16} />
-          </button>
+          <Button onClick={handleAddToCart} variant="primary" className="flex-1 sm:flex-none">
+            <ShoppingBag size={18} />
+            {added ? "Added to cart" : `Add to cart — $${total}`}
+          </Button>
         </div>
 
-        <Button onClick={handleAddToCart} variant="primary" className="flex-1 sm:flex-none">
-          <ShoppingBag size={18} />
-          {added ? "Added to cart" : `Add to cart — $${total}`}
-        </Button>
-      </div>
+        {added && (
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 font-body text-sm font-medium text-navy"
+          >
+            {petName || "Your collar"} was added to your cart{neckSize ? ` — neck size ${neckSize}${neckUnit}` : ""}.
+          </motion.p>
+        )}
 
-      {added && (
-        <motion.p
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-3 font-body text-sm font-medium text-navy"
-        >
-          {petName || "Your collar"} was added to your cart{neckSize ? ` — neck size ${neckSize}${neckUnit}` : ""}.
-        </motion.p>
-      )}
-
-      <div className="mt-12">
-        <Accordion
-          items={[
-            { title: "Materials", content: "Premium, lightweight silicone beads on a nylon-coated cord, with personalized acrylic letter beads for the name." },
-            { title: "Sizing", content: <SizingGuide /> },
-            { title: "Shipping", content: "Handmade to order in Miami. Allow 3-5 business days to craft your collar, then 2-4 business days for domestic delivery." },
-            { title: "Care", content: "Wipe clean with a damp cloth. Silicone beads are waterproof and safe for swimming, but remove before machine washing your pet's bedding." },
-          ]}
-        />
+        <div className="mt-12">
+          <Accordion
+            items={[
+              { title: "Materials", content: "Premium, lightweight silicone beads on a nylon-coated cord, with personalized acrylic letter beads for the name." },
+              { title: "Sizing", content: <SizingGuide /> },
+              { title: "Shipping", content: "Handmade to order in Miami. Allow 3-5 business days to craft your collar, then 2-4 business days for domestic delivery." },
+              { title: "Care", content: "Wipe clean with a damp cloth. Silicone beads are waterproof and safe for swimming, but remove before machine washing your pet's bedding." },
+            ]}
+          />
+        </div>
       </div>
     </div>
   );

@@ -25,7 +25,7 @@ export type Collection = {
 };
 
 export const collections: Collection[] = [
-  { slug: "biscayne-blue", name: "Biscayne Blue", description: "Inspired by the waters of Biscayne Bay in Miami.", status: "available", image: "/images/Blue-collar-example.PNG", accent: "bg-bead-sky" },
+  { slug: "biscayne-blue", name: "Build Your Own Collar", description: "Pick your colors, add a name, and we'll hand-make it in Miami.", status: "available", image: "/images/Blue-collar-example.PNG", accent: "bg-bead-sky" },
   { slug: "pink-flamingo", name: "Pink Flamingo", description: "Bright pink and coral, straight off Ocean Drive.", status: "coming-soon", image: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=1200&auto=format&fit=crop", accent: "bg-bead-pink" },
   { slug: "palm-green", name: "Palm Green", description: "Lush mint and butter yellow, palm-shaded and playful.", status: "coming-soon", image: "https://images.unsplash.com/photo-1560807707-8cc77767d783?q=80&w=1200&auto=format&fit=crop", accent: "bg-bead-mint" },
   { slug: "sunset-coral", name: "Sunset Coral", description: "Warm coral and peach, golden hour on South Beach.", status: "coming-soon", image: "/images/simba-collar.PNG", accent: "bg-bead-coral" },

@@ -43,7 +43,7 @@ export default function Hero() {
           <div className="relative aspect-[4/5] w-full overflow-hidden rounded-4xl shadow-card md:aspect-square">
             <Image
               src="/images/dog-pack-collars.JPG"
-              alt="Golden retriever wearing a colorful Biscayne Blue silicone bead collar on a bright Miami morning"
+              alt="Three dogs wearing colorful Club Fede Co. silicone bead collars"
               fill
               priority
               sizes="(max-width: 768px) 100vw, 50vw"
