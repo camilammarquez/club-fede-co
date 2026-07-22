@@ -11,9 +11,9 @@ import CollarPreview from "@/components/CollarPreview";
 import ProductGalleryCarousel from "@/components/ProductGalleryCarousel";
 
 const sizePrices: Record<string, number> = {
-  XS: 15,
-  "S/M": 18,
-  "L/XL": 20,
+  XS: 16,
+  "S/M": 19,
+  "L/XL": 21,
 };
 
 const sizeGuideRows = [
