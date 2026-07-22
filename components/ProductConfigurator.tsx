@@ -8,7 +8,11 @@ import { useCart } from "@/lib/cart-context";
 import Button from "@/components/ui/Button";
 import Accordion from "@/components/ui/Accordion";
 
-const BASE_PRICE = 34;
+const sizePrices: Record<string, number> = {
+  XS: 15,
+  "S/M": 18,
+  "L/XL": 20,
+};
 
 const sizeGuideRows = [
   { label: "XS", in: "8\" – 11\"", cm: "20 – 28 cm", breeds: "Chihuahuas, Yorkies, Papillons, toy breeds, cats", maxIn: 11 },
@@ -79,7 +83,8 @@ export default function ProductConfigurator({ collection }: { collection: Collec
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
-  const total = useMemo(() => (BASE_PRICE * quantity).toFixed(2), [quantity]);
+  const unitPrice = sizePrices[size] ?? sizePrices["S/M"];
+  const total = useMemo(() => (unitPrice * quantity).toFixed(2), [unitPrice, quantity]);
 
   useEffect(() => {
     const parsed = parseFloat(neckSize);
@@ -108,8 +113,10 @@ export default function ProductConfigurator({ collection }: { collection: Collec
       colors: selectedColors,
       size,
       petName,
+      neckSize: neckSize ? neckSize : undefined,
+      neckUnit,
       quantity,
-      price: BASE_PRICE,
+      price: unitPrice,
       image: collection.image,
     });
     setAdded(true);
@@ -123,7 +130,7 @@ export default function ProductConfigurator({ collection }: { collection: Collec
       </span>
       <h1 className="mt-4 font-display text-3xl font-bold text-navy md:text-4xl">{collection.name} Collar</h1>
       <p className="mt-2 font-body text-navy-dark/70">{collection.description}</p>
-      <p className="mt-5 font-display text-2xl font-semibold text-navy">${BASE_PRICE.toFixed(2)}</p>
+      <p className="mt-5 font-display text-2xl font-semibold text-navy">${unitPrice.toFixed(2)}</p>
 
       <div className="mt-8">
         <p className="font-body text-sm font-semibold text-navy">
@@ -175,7 +182,7 @@ export default function ProductConfigurator({ collection }: { collection: Collec
               >
                 <span className="block font-display text-sm font-semibold">{s.label}</span>
                 <span className={`block font-body text-[11px] ${isSelected ? "text-cream/70" : "text-navy-dark/50"}`}>
-                  {s.beadSize}
+                  ${sizePrices[s.label]?.toFixed(2)}
                 </span>
               </button>
             );

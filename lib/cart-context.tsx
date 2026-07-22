@@ -9,6 +9,8 @@ export type CartItem = {
   colors: string[];
   size: string;
   petName: string;
+  neckSize?: string;
+  neckUnit?: "in" | "cm";
   quantity: number;
   price: number;
   image: string;

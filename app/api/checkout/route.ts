@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
           description: [
             item.colors?.length ? `Colors: ${item.colors.join(", ")}` : null,
             item.petName ? `Name: "${item.petName}"` : null,
+            item.neckSize ? `Neck size: ${item.neckSize}${item.neckUnit || "in"}` : null,
           ]
             .filter(Boolean)
             .join(" · ") || undefined,
